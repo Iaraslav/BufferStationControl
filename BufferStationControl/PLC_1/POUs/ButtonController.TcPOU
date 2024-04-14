@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ButtonController" Id="{80405ffb-ef53-44cb-b1a4-4e4b684fba13}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ButtonController
+VAR_INPUT
+	StartButton: BOOL;
+	ResetButton: BOOL;
+	StopButton: BOOL;
+	EmgStopButton: BOOL;
+END_VAR
+VAR_OUTPUT
+	StartLight: BOOL;
+	ResetLight: BOOL;
+	StopLight: BOOL;
+END_VAR
+VAR
+	tBlink: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Blinking logic
+tBlink(IN := NOT tBlink.Q, PT := T#1000MS);
+GVL.BlinkBit := tBlink.ET > T#500MS;
+// -------------
+// Memory Bit For SystemON (when true the system is ready to run)
+IF GVL.isStopON THEN
+	IF NOT GVL.isEmgStopON AND StartButton THEN
+		GVL.isSystemON := TRUE;
+	END_IF;
+END_IF;
+IF GVL.isResetON THEN
+	IF NOT GVL.isEmgStopON AND StartButton AND NOT GVL.isStopON THEN
+		GVL.isSystemON := TRUE;
+	END_IF;
+END_IF;
+IF GVL.isEmgStopON OR NOT StopButton THEN
+	GVL.isSystemON := FALSE;
+END_IF;
+// -------------
+// Memory bit for IsEmgStopON - Set/Reset
+IF NOT EmgStopButton THEN
+	GVL.isEmgStopON := TRUE;
+END_IF;
+IF EmgStopButton THEN
+	GVL.isEmgStopON := FALSE;
+END_IF;
+// -------------
+// Memory bit for IsResetON - Set/Reset
+IF ResetButton AND NOT GVL.isEmgStopON AND NOT GVL.isStopON THEN
+	GVL.isResetON := TRUE;
+END_IF;
+IF StartButton THEN
+	GVL.isResetON := FALSE;
+END_IF;
+// -------------
+// Memory bit for IsStopON - Set/Reset
+IF NOT StopButton AND NOT GVL.isEmgStopON THEN
+	GVL.isStopON := TRUE;
+END_IF;
+IF GVL.isSystemON OR GVL.wasEmgBtnPressed THEN
+	GVL.isStopON := FALSE;
+END_IF;
+// -------------
+// Memory bit for wasEmgBtnPressed - Set/Reset
+IF NOT EmgStopButton THEN
+	GVL.wasEmgBtnPressed := TRUE;
+	GVL.isResetON := FALSE;
+END_IF;
+IF GVL.isSystemON THEN
+	GVL.wasEmgBtnPressed := FALSE;
+END_IF;
+// ------------- OUTPUTS --------------
+StartLight := GVL.isSystemON OR ((GVL.isResetON OR (NOT GVL.isResetON AND GVL.isStopON)) AND NOT GVL.isEmgStopON AND NOT GVL.isSystemON AND GVL.BlinkBit);
+ResetLight := (GVL.isResetON OR (NOT GVL.isResetON AND GVL.BlinkBit)) AND NOT GVL.isEmgStopON AND NOT GVL.isStopON AND NOT GVL.isSystemON;
+StopLight := (GVL.isEmgStopON OR GVL.isStopON) AND NOT GVL.isSystemON;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="ButtonController">
+      <LineId Id="71" Count="2" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="75" Count="2" />
+      <LineId Id="80" Count="1" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="84" Count="1" />
+      <LineId Id="88" Count="1" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="90" Count="7" />
+      <LineId Id="99" Count="4" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="125" Count="4" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="130" Count="3" />
+      <LineId Id="135" Count="2" />
+      <LineId Id="107" Count="1" />
+      <LineId Id="139" Count="1" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="143" Count="2" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="146" Count="2" />
+      <LineId Id="110" Count="14" />
+      <LineId Id="104" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL" Id="{89c2e624-1747-4c77-9fdc-706a01b68733}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	mb_Input_Coils : ARRAY [0..6] OF BOOL;
+	mb_Output_Coils : ARRAY [0..7] OF BOOL;
+	isStopON: BOOL;
+	isEmgStopON: BOOL;
+	isSystemON: BOOL;
+	isResetON: BOOL;
+	wasEmgBtnPressed: BOOL;
+	BlinkBit : BOOL;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ConveyorController" Id="{d61dc998-b604-42df-a6c5-73cc5dbd69a1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ConveyorController
+VAR_INPUT
+	AtBufferEntry : BOOL;
+	AtBufferExit : BOOL;
+	AtExit : BOOL;
+END_VAR
+VAR_OUTPUT
+	EntryConveyor: BOOL;
+	ExitConveyor: BOOL;
+END_VAR
+VAR
+	state: INT;
+	TimerTP : TP;
+	TimerTOF : TOF;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF GVL.isSystemON THEN
+	CASE state OF
+		0: // Box collection stage
+			EntryConveyor := TRUE;
+			TimerTP(IN := NOT AtBufferExit, PT := T#1200MS, Q => ExitConveyor);
+			IF NOT AtExit THEN
+				state := 1;
+			END_IF;
+		1: // Box removal stage
+			EntryConveyor := FALSE;
+			TimerTOF(IN := NOT AtExit, PT := T#1S, Q => ExitConveyor);
+			IF NOT TimerTOF.Q THEN
+				state := 0;
+			END_IF;
+	ELSE
+		state := 0;
+	END_CASE;
+ELSE
+	EntryConveyor := FALSE;
+	ExitConveyor := FALSE;
+	state := 0;
+END_IF;]]></ST>
+    </Implementation>
+    <LineIds Name="ConveyorController">
+      <LineId Id="13" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="32" Count="1" />
+      <LineId Id="37" Count="4" />
+      <LineId Id="44" Count="5" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="50" Count="3" />
+      <LineId Id="20" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{6e8692c7-591f-4c2f-bfee-a5270370c477}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	Start: BOOL;
+	Reset: BOOL;
+	Stop: BOOL;
+	
+	StartLight: BOOL;
+	ResetLight: BOOL;
+	StopLight: BOOL;
+	
+	AtBufferEntry : BOOL;
+	AtBufferExit : BOOL;
+	AtExit : BOOL;
+	
+	Emitter : BOOL;
+	EntryConveyor: BOOL;
+	ExitConveyor: BOOL;
+	EmergencyStop: BOOL;
+	
+	isStopON: BOOL;
+	isEmgStopON: BOOL;
+	isSystemON: BOOL;
+	isResetON: BOOL;
+	wasEmgBtnPressed: BOOL;
+	
+	ButtonController : ButtonController;
+	EmitterController : EmitterController;
+	ConveyorController : ConveyorController;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// I/O Assignments
+GVL.mb_Input_Coils[1] := StartLight;
+GVL.mb_Input_Coils[2] := ResetLight;
+GVL.mb_Input_Coils[3] := StopLight;
+GVL.mb_Input_Coils[4] := EntryConveyor;
+GVL.mb_Input_Coils[5] := ExitConveyor;
+GVL.mb_Input_Coils[6] := Emitter;
+
+AtBufferEntry := GVL.mb_Output_Coils[0];
+AtBufferExit := GVL.mb_Output_Coils[1];
+AtExit := GVL.mb_Output_Coils[2];
+Start := gvl.mb_Output_Coils[3];
+Reset := gvl.mb_Output_Coils[4];
+Stop := gvl.mb_Output_Coils[5];
+EmergencyStop := gvl.mb_Output_Coils[7];
+// -------------
+//Button Control
+ButtonController(StartButton := Start, ResetButton := Reset, StopButton := Stop, 
+EmgStopButton := EmergencyStop, StartLight => StartLight, ResetLight => ResetLight, StopLight => StopLight);
+// -------------
+// Emitter Control
+EmitterController(AtBufferEntry := AtBufferEntry, Emitter => Emitter);
+// -------------
+// Conveyor control
+ConveyorController(AtBufferEntry := AtBufferEntry, AtBufferExit := AtBufferExit, AtExit := AtExit, EntryConveyor => EntryConveyor, ExitConveyor => ExitConveyor);
+// -------------]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="76" Count="0" />
+      <LineId Id="37" Count="2" />
+      <LineId Id="43" Count="1" />
+      <LineId Id="75" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="67" Count="2" />
+      <LineId Id="40" Count="2" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="71" Count="1" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
